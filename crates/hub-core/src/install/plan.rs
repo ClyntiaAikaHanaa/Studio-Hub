@@ -453,6 +453,7 @@ mod tests {
                 homepage_url: None,
                 source_url: None,
                 license: None,
+                release_page_url: None,
                 hidden: false,
                 deprecated: false,
                 deprecation_notice: None,

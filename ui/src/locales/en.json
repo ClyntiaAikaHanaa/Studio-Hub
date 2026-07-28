@@ -16,6 +16,8 @@
   "detail.changelog": "What changed",
   "detail.starOnGithub": "Star on GitHub",
   "detail.starFailed": "Could not open the browser. The repository address is at the bottom of this page.",
+  "detail.releaseOnly": "This plugin ships its own installer, so Studio Hub does not manage it. Download it from the release page and run the installer.",
+  "detail.openReleasePage": "Open release page",
 
   "common.update": "Update",
   "common.reinstall": "Reinstall",

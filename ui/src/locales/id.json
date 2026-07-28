@@ -16,6 +16,8 @@
   "detail.changelog": "Apa yang berubah",
   "detail.starOnGithub": "Beri bintang di GitHub",
   "detail.starFailed": "Browser tidak dapat dibuka. Alamat reponya ada di bagian bawah halaman ini.",
+  "detail.releaseOnly": "Plugin ini punya installer sendiri, jadi Studio Hub tidak mengelolanya. Unduh dari halaman rilis lalu jalankan installernya.",
+  "detail.openReleasePage": "Buka halaman rilis",
 
   "common.update": "Perbarui",
   "common.reinstall": "Pasang ulang",

@@ -139,6 +139,20 @@ pub struct Plugin {
     /// SPDX id, mis. `GPL-3.0`. Teksnya ada di [`Catalog::licenses`].
     #[serde(default)]
     pub license: Option<String>,
+    /// Halaman rilis GitHub, untuk plugin yang instalasinya tidak dapat kami
+    /// kelola (mis. wajib lewat installer `.exe` milik vendor).
+    ///
+    /// Kalau ini terisi, plugin tetap tampil penuh di Explore dan halaman
+    /// detailnya — README, logo, metadata — tetapi tombol pemasangannya
+    /// mengarahkan pengguna ke halaman rilis alih-alih memasang apa pun.
+    ///
+    /// Ini disengaja sebagai jalan keluar yang **tidak** menyentuh jalur
+    /// instalasi: Studio Hub tidak mengunduh, tidak memverifikasi, dan tidak
+    /// mengeksekusi installer siapa pun. Konsekuensinya plugin seperti ini tidak
+    /// muncul di Library dan tidak punya update, rollback, atau uninstall — dan
+    /// itu jujur, karena kami memang tidak tahu apa yang dipasang installer-nya.
+    #[serde(default, alias = "release_page_url")]
+    pub release_page_url: Option<String>,
     #[serde(default)]
     pub hidden: bool,
     #[serde(default)]
@@ -508,5 +522,32 @@ mod tests {
         p["latest"]["builds"][0]["url"] = serde_json::json!("http://github.com/x.zip");
         let catalog = Catalog::parse(&catalog_with(vec![p])).unwrap();
         assert!(catalog.plugins.is_empty());
+    }
+
+    /// Plugin yang mendistribusikan installer sendiri: tanpa build, dengan
+    /// `release_page_url` sebagai gantinya.
+    ///
+    /// Entri seperti ini harus **diterima**, bukan dilewati sebagai entri rusak.
+    /// Kalau ia dilewati, plugin itu hilang dari Explore tanpa pesan apa pun dan
+    /// satu-satunya petunjuknya ada di `skipped` yang tidak pernah dilihat siapa
+    /// pun.
+    #[test]
+    fn plugin_without_builds_is_kept_when_it_has_a_release_page() {
+        let mut p = plugin_json("spectracore");
+        p["latest"]["builds"] = serde_json::json!([]);
+        p["release_page_url"] = serde_json::json!(
+            "https://github.com/ClyntiaAikaHanaa/SpectraCore/releases/tag/v1.0.0"
+        );
+
+        let catalog = Catalog::parse(&catalog_with(vec![p])).unwrap();
+        assert_eq!(
+            catalog.skipped.len(),
+            0,
+            "tidak boleh dilewati: {:?}",
+            catalog.skipped
+        );
+        assert_eq!(catalog.plugins.len(), 1);
+        assert!(catalog.plugins[0].release_page_url.is_some());
+        assert!(catalog.plugins[0].latest.builds.is_empty());
     }
 }

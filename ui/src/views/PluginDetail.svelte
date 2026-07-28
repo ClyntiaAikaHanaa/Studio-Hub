@@ -99,6 +99,20 @@
   let repoUrl = $derived(plugin.sourceUrl ?? plugin.homepageUrl);
 
   let starFailed = $state(false);
+  let releaseFailed = $state(false);
+
+  // Membuka halaman rilis di browser. Lewat `open_external` yang sama dengan
+  // tombol bintang, jadi host-nya divalidasi ulang di backend.
+  async function openReleasePage() {
+    const url = plugin.releasePageUrl;
+    if (!url) return;
+    releaseFailed = false;
+    try {
+      await api.openExternal(url);
+    } catch {
+      releaseFailed = true;
+    }
+  }
 
   // Membuka repo di browser, bukan menekan tombol bintang atas nama pengguna.
   // Memberi bintang memerlukan token GitHub, dan meminta kredensial hanya untuk
@@ -152,7 +166,19 @@
 
   <div class="panes">
   <section class="install-panel card">
-    {#if !plugin.availableForPlatform || plugin.availableVersions.length === 0}
+    {#if plugin.releasePageUrl}
+      <!-- Plugin yang instalasinya tidak kami kelola. Halaman ini tetap utuh:
+           README, logo, dan metadatanya datang dari katalog seperti plugin lain.
+           Yang berbeda hanya tombolnya, dan pengguna diberi tahu kenapa sebelum
+           mereka mengkliknya. -->
+      <p class="small muted release-only">{$t("detail.releaseOnly")}</p>
+      <button class="primary get" onclick={openReleasePage}>
+        {$t("detail.openReleasePage")}
+      </button>
+      {#if releaseFailed}
+        <p class="small muted star-failed">{$t("detail.starFailed")}</p>
+      {/if}
+    {:else if !plugin.availableForPlatform || plugin.availableVersions.length === 0}
       <p class="muted">{$t("explore.unavailable")}</p>
     {:else if job}
       <JobProgress {job} />
@@ -363,6 +389,10 @@
 
   .star-failed {
     margin-top: 6px;
+  }
+
+  .release-only {
+    margin: 0 0 4px;
   }
 
   .readme {

@@ -57,6 +57,9 @@ export interface PluginView {
   screenshots: string[];
   homepageUrl: string | null;
   sourceUrl: string | null;
+  /// Terisi hanya untuk plugin yang instalasinya tidak dikelola Studio Hub.
+  /// Halaman detail memakai ini untuk mengganti tombol pasang jadi tautan.
+  releasePageUrl: string | null;
   license: string | null;
   /** Teks lisensi lengkap; dialog instalasi menampilkannya sebelum Install. */
   licenseText: string;

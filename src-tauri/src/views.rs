@@ -51,6 +51,10 @@ pub struct PluginView {
     pub screenshots: Vec<String>,
     pub homepage_url: Option<String>,
     pub source_url: Option<String>,
+    /// Terisi hanya untuk plugin yang instalasinya tidak kami kelola.
+    /// UI memakai keberadaannya untuk mengubah tombol pemasangan menjadi
+    /// tautan ke halaman rilis.
+    pub release_page_url: Option<String>,
     pub license: Option<String>,
     /// Teks lisensi lengkap. Dialog instalasi menampilkannya sebelum pengguna
     /// dapat menekan Install.
@@ -231,6 +235,7 @@ pub fn build_plugin_view(
         screenshots: plugin.screenshots.clone(),
         homepage_url: plugin.homepage_url.clone(),
         source_url: plugin.source_url.clone(),
+        release_page_url: plugin.release_page_url.clone(),
         license: plugin.license.clone(),
         license_text: catalog.license_text(plugin).to_string(),
         deprecated: plugin.deprecated,
