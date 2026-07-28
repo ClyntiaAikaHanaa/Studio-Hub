@@ -1,0 +1,31 @@
+[package]
+name = "hub-helper"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+# Binary elevated. Dibuat sekecil mungkin secara sengaja: setiap baris di sini
+# berjalan pada High integrity level (PRD §13.7).
+
+[[bin]]
+name = "hub-helper"
+path = "src/main.rs"
+
+[dependencies]
+hub-core = { path = "../hub-core" }
+hub-elevate = { path = "../hub-elevate" }
+serde_json.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+
+[dev-dependencies]
+tempfile = "3"
+
+[target.'cfg(windows)'.dependencies]
+windows = { workspace = true, features = [
+    "Win32_Foundation",
+    "Win32_Storage_FileSystem",
+    "Win32_System_Threading",
+    "Win32_System_Pipes",
+] }

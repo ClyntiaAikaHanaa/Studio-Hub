@@ -1,0 +1,75 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Studio Hub",
+  "version": "1.0.0",
+  "identifier": "id.studiorobi.studiohub",
+  "build": {
+    "frontendDist": "../ui/dist",
+    "devUrl": "http://localhost:5173",
+    "beforeDevCommand": "node scripts/build-sidecar.mjs --debug && npm --prefix ui run dev",
+    "beforeBuildCommand": "node scripts/build-sidecar.mjs && npm --prefix ui run build"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "Studio Hub",
+        "width": 1080,
+        "height": 720,
+        "minWidth": 880,
+        "minHeight": 560,
+        "resizable": true,
+        "center": true,
+        "decorations": true
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; img-src 'self' asset: http://asset.localhost; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self' ipc: http://ipc.localhost; font-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'",
+      "dangerousDisableAssetCspModification": false,
+      "assetProtocol": {
+        "enable": true,
+        "scope": ["$LOCALDATA/StudioHub/cache/icons/*"]
+      }
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["msi", "nsis"],
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.ico"
+    ],
+    "resources": [],
+    "externalBin": ["binaries/hub-helper"],
+    "copyright": "Â© 2026 Abdul Robi",
+    "category": "Utility",
+    "shortDescription": "Launcher & auto-updater plugin VST3",
+    "longDescription": "Satu tempat untuk menemukan, memasang, memperbarui, dan menghapus plugin VST3 Studio Robi. Setiap unduhan diverifikasi SHA-256; instalasi per-user tidak memerlukan hak Administrator.",
+    "windows": {
+      "digestAlgorithm": "sha256",
+      "timestampUrl": "http://timestamp.digicert.com",
+      "nsis": {
+        "installMode": "currentUser",
+        "languages": ["English", "Indonesian"]
+      },
+      "wix": {
+        "language": ["en-US"]
+      }
+    }
+  },
+  "plugins": {
+    "updater": {
+      "active": true,
+      "endpoints": [
+        "https://ClyntiaAikaHanaa.github.io/plugin-catalog/launcher/latest.json"
+      ],
+      "dialog": false,
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDJGM0Q3NEU2RkExQURBMzYKUldRMjJocjY1blE5TDhDeXVDMzNLZWNYTmY1U3pGZmd3clpObmFldm1LS1c2eEdGWE92dXhqWjIK",
+      "windows": {
+        "installMode": "passive"
+      }
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Kapabilitas minimal untuk window utama (PRD §14.4, ADR-5). Yang TIDAK ada di sini, secara sengaja: fs:*, http:*, shell:*, process:*. Semua kebutuhan itu dilayani command bertipe di §12.2, di mana backend yang memvalidasi input. Konsekuensinya: bug XSS di frontend tidak otomatis menjadi arbitrary file write.",
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    "core:event:allow-listen",
+    "core:event:allow-unlisten",
+    "core:window:allow-start-dragging",
+    "core:window:allow-minimize",
+    "core:window:allow-close",
+    "dialog:allow-open",
+    "dialog:allow-message",
+    "dialog:allow-confirm",
+    "updater:default"
+  ]
+}

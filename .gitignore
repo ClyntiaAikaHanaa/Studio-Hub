@@ -1,0 +1,50 @@
+# ── Kunci privat: JANGAN PERNAH di-commit ──────────────────────────────────
+#
+# `studio-hub.key` adalah kunci Ed25519 yang menandatangani update launcher.
+# Siapa pun yang memilikinya dapat mengirim launcher palsu ke setiap mesin yang
+# sudah memasangnya, dan pengguna tidak akan melihat peringatan apa pun.
+#
+# Kalau ia pernah ter-push sekali, menghapusnya di commit berikutnya TIDAK
+# cukup: kunci itu harus dianggap bocor dan diganti (PRD §14.6, R1).
+*.key
+*.pem
+*.pfx
+*.p12
+studio-hub.key
+studio-hub.key.pub
+
+# Sertifikat code signing dan variabel rahasia lain.
+.env
+.env.*
+!.env.example
+*.snk
+*.jks
+*.keystore
+
+# ── Hasil build ────────────────────────────────────────────────────────────
+/target
+/ui/dist
+/ui/node_modules
+/node_modules
+src-tauri/gen
+
+# Sidecar hub-helper, disalin ke sini oleh scripts/build-sidecar.mjs setiap
+# build. Nama berkasnya memuat target triple, jadi ia spesifik per mesin,
+# artefak dan bukan sumber.
+src-tauri/binaries
+
+# Manifest updater, dihasilkan saat rilis oleh scripts/make-latest-json.mjs.
+/latest.json
+/CHANGELOG-latest.md
+
+# ZIP plugin untuk diunggah ke GitHub Releases; artefak sementara.
+/release-assets
+
+# ── Berkas lokal ───────────────────────────────────────────────────────────
+*.log
+*.tmp
+.vscode/
+.idea/
+Thumbs.db
+desktop.ini
+.DS_Store

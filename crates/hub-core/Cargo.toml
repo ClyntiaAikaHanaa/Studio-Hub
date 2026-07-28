@@ -1,0 +1,41 @@
+[package]
+name = "hub-core"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+# Sengaja TIDAK bergantung pada Tauri (PRD §11.1): logika instalasi harus
+# dapat diuji tanpa membangun aplikasi GUI.
+
+[dependencies]
+thiserror.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tokio.workspace = true
+reqwest.workspace = true
+futures-util.workspace = true
+sha2.workspace = true
+semver.workspace = true
+zip.workspace = true
+url.workspace = true
+uuid.workspace = true
+directories.workspace = true
+sysinfo.workspace = true
+tracing.workspace = true
+time.workspace = true
+
+[target.'cfg(windows)'.dependencies]
+windows = { workspace = true, features = [
+    "Win32_Foundation",
+    "Win32_Storage_FileSystem",
+    "Win32_System_Registry",
+    "Win32_System_SystemInformation",
+    "Win32_System_Diagnostics_Debug",
+    "Win32_UI_Shell",
+    "Win32_UI_WindowsAndMessaging",
+] }
+
+[dev-dependencies]
+tempfile = "3"
+tokio = { workspace = true, features = ["test-util"] }

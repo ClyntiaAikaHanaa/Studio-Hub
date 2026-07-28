@@ -1,0 +1,86 @@
+Studio Hub
+Copyright (c) 2026 Abdul Robi. All rights reserved.
+
+PROPRIETARY LICENSE
+
+This software, including its source code, assets, documentation, and
+compiled binaries (the "Software"), is the property of Abdul Robi and is
+protected by copyright law.
+
+The source code is publicly viewable for transparency and security
+auditing only. Viewable does not mean open source. No rights are granted
+except those written below.
+
+
+1. WHAT YOU MAY DO
+
+   a. Download, install, and use the official binaries distributed by
+      the copyright holder, for your own personal or commercial
+      purposes.
+
+   b. Read the source code to understand how it works or to audit its
+      security.
+
+   c. Keep private backup copies of the official binaries you use.
+
+
+2. WHAT YOU MAY NOT DO
+
+   Without prior written permission from the copyright holder, you may
+   not:
+
+   a. Redistribute, republish, re-upload, mirror, or otherwise make the
+      Software available to third parties, in source or binary form, in
+      whole or in part, whether for a fee or free of charge.
+
+   b. Copy, modify, translate, adapt, or create derivative works from
+      the Software.
+
+   c. Incorporate the Software or any part of it into another project,
+      product, or service.
+
+   d. Sell, rent, sublicense, lend, or otherwise transfer the Software.
+
+   e. Reverse engineer, decompile, or disassemble the binaries, except
+      to the extent that such acts cannot be prohibited under applicable
+      law.
+
+   f. Remove, obscure, or alter any copyright, trademark, or attribution
+      notice contained in the Software.
+
+   g. Use the name "Studio Hub", its logo, or its visual identity for
+      any other product or service.
+
+
+3. THIRD PARTY COMPONENTS
+
+   The Software uses third party libraries, including Tauri, Rust
+   crates, and npm packages, which remain governed by their own
+   licenses. Nothing in this document applies, or is intended to apply,
+   to those components.
+
+   Audio plugins installed through the Software are covered by their own
+   licenses, separate from this document.
+
+
+4. NO WARRANTY
+
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+   EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND
+   NONINFRINGEMENT. THE COPYRIGHT HOLDER SHALL NOT BE LIABLE FOR ANY
+   CLAIM, DAMAGES, OR OTHER LIABILITY ARISING FROM THE USE OF THE
+   SOFTWARE.
+
+
+5. TERMINATION
+
+   The permissions in Section 1 terminate automatically if you breach
+   any term of this document. Upon termination you must stop using the
+   Software and delete all copies in your possession.
+
+
+6. OTHER PERMISSIONS
+
+   Permissions beyond the scope of this document may be requested from
+   the copyright holder.

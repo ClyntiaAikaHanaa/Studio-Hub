@@ -1,0 +1,594 @@
+/* Sistem visual Studio Hub.
+ *
+ * Tiga hal yang membuat versi sebelumnya terasa datar, dan bagaimana masing-
+ * masing ditangani di sini:
+ *
+ * 1. Semua permukaan berwarna sama. Sekarang ada tiga tingkat — latar aplikasi,
+ *    panel, dan permukaan terangkat — sehingga mata tahu apa yang berada di
+ *    atas apa.
+ * 2. Tidak ada aksen. Warna aksen sekarang muncul sebagai gradien halus di
+ *    tombol utama dan sebagai penanda tab aktif, bukan hanya sebagai warna
+ *    tombol.
+ * 3. Tidak ada hierarki ukuran. Skala tipografi dinaikkan supaya judul benar-
+ *    benar terbaca sebagai judul.
+ *
+ * Kontras tetap memenuhi WCAG AA (NFR-4.1) di kedua tema — itu batas yang tidak
+ * boleh dikorbankan demi tampilan.
+ */
+
+/* Palet dasar, diambil dari `asset/pallete2.png`:
+ *
+ *   #0a460d  hijau hutan     → berhasil
+ *   #672625  merah bata      → bahaya
+ *   #a78e65  khaki           → peringatan / aksen hangat
+ *   #f7e6c8  krem            → teks di tema gelap, latar di tema terang
+ *   #41576b  biru batu       → aksen utama
+ *
+ * Kelima warna itu dipakai apa adanya di tema terang. Di tema gelap, warna
+ * pesan (hijau/merah/khaki) DINAIKKAN kecerahannya — versi aslinya terlalu
+ * gelap untuk dibaca di atas latar gelap, dan kontras 4.5:1 (NFR-4.1) adalah
+ * batas yang tidak boleh dikorbankan demi kesetiaan pada palet.
+ */
+
+:root {
+  --radius: 12px;
+  --radius-sm: 8px;
+  color-scheme: light dark;
+}
+
+/* ── Tema terang ───────────────────────────────────────────────────────── */
+/*
+ * Krem #f7e6c8 jadi latar, slate #41576b jadi aksi, dan tiga warna sisanya
+ * dipakai apa adanya untuk pesan. Tidak ada yang dilunakkan: di atas krem,
+ * kelimanya sudah cukup kontras.
+ */
+:root,
+:root[data-theme="light"] {
+  --bg: #ece0c8;
+  --bg-accent: #f7e6c8;
+  --surface: #fdf7ea;
+  --surface-2: #f2e6cd;
+  --surface-3: #e5d6b4;
+  --border: #d6c5a1;
+  --border-strong: #b9a47a;
+  --text: #221c12;
+  --text-muted: #5f5238;
+
+  --accent: #41576b;
+  --accent-2: #526d86;
+  --accent-soft: #dfe4ea;
+  --accent-text: #f7e6c8;
+  --focus: #41576b;
+
+  --danger: #672625;
+  --danger-bg: #f2ddd9;
+  --warning: #6f5522;
+  --warning-bg: #f2e5c8;
+  --success: #0a460d;
+  --success-bg: #dfe9d9;
+
+  --shadow-sm: 0 1px 2px rgba(52, 40, 20, 0.1);
+  --shadow: 0 2px 4px rgba(52, 40, 20, 0.08), 0 8px 24px rgba(52, 40, 20, 0.12);
+  --shadow-lg: 0 8px 16px rgba(52, 40, 20, 0.14), 0 24px 56px rgba(52, 40, 20, 0.24);
+}
+
+/* ── Tema gelap ────────────────────────────────────────────────────────── */
+/*
+ * Latarnya HANGAT, bukan biru-abu: krem #f7e6c8 sebagai teks hanya terasa
+ * disengaja kalau permukaannya condong ke cokelat gelap. Latar netral membuat
+ * krem terbaca sebagai "putih yang kotor".
+ *
+ * Slate #41576b dipakai apa adanya sebagai isian tombol dengan teks krem —
+ * 5,9:1, lolos AA. Yang TIDAK boleh: memakai slate sebagai warna teks di atas
+ * latar gelap; di sana ia cuma 2,3:1. Karena itu cincin fokus memakai khaki
+ * #a78e65, yang justru menonjol.
+ *
+ * Hijau, merah, dan khaki dinaikkan kecerahannya khusus untuk tema ini —
+ * versi aslinya di bawah 4,5:1 terhadap latar gelap, dan kontras itu batas
+ * yang tidak dikorbankan demi kesetiaan warna.
+ */
+:root[data-theme="dark"] {
+  --bg: #14110b;
+  --bg-accent: #191509;
+  --surface: #1d1810;
+  --surface-2: #272016;
+  --surface-3: #342b1e;
+  --border: #3b3224;
+  --border-strong: #554832;
+  --text: #f7e6c8;
+  --text-muted: #a78e65;
+
+  --accent: #41576b;
+  --accent-2: #55708a;
+  --accent-soft: #232a31;
+  --accent-text: #f7e6c8;
+  --focus: #a78e65;
+
+  --danger: #c9736f;
+  --danger-bg: #2e1a17;
+  --warning: #a78e65;
+  --warning-bg: #2b2314;
+  --success: #549857;
+  --success-bg: #172414;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow: 0 2px 4px rgba(0, 0, 0, 0.45), 0 8px 24px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.55), 0 24px 56px rgba(0, 0, 0, 0.7);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #14110b;
+    --bg-accent: #191509;
+    --surface: #1d1810;
+    --surface-2: #272016;
+    --surface-3: #342b1e;
+    --border: #3b3224;
+    --border-strong: #554832;
+    --text: #f7e6c8;
+    --text-muted: #a78e65;
+
+    --accent: #41576b;
+    --accent-2: #55708a;
+    --accent-soft: #232a31;
+    --accent-text: #f7e6c8;
+    --focus: #a78e65;
+
+    --danger: #c9736f;
+    --danger-bg: #2e1a17;
+    --warning: #a78e65;
+    --warning-bg: #2b2314;
+    --success: #549857;
+    --success-bg: #172414;
+
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+    --shadow: 0 2px 4px rgba(0, 0, 0, 0.45), 0 8px 24px rgba(0, 0, 0, 0.5);
+    --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.55), 0 24px 56px rgba(0, 0, 0, 0.7);
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.55;
+  /* Launcher bukan halaman web: seleksi teks tidak sengaja terasa seperti bug. */
+  user-select: none;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* NFR-4.2: focus ring harus terlihat, di semua elemen interaktif.
+   Memakai token tersendiri, bukan --accent: slate hampir tidak terlihat di
+   atas latar gelap, dan cincin fokus yang samar sama saja dengan tidak ada. */
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* ── Tombol ────────────────────────────────────────────────────────────── */
+
+button {
+  font: inherit;
+  font-weight: 500;
+  color: inherit;
+  cursor: pointer;
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+  transition:
+    background 140ms ease,
+    border-color 140ms ease,
+    transform 80ms ease,
+    box-shadow 140ms ease;
+}
+
+button:hover:not(:disabled) {
+  background: var(--surface-2);
+  border-color: var(--border-strong);
+}
+
+button:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: none;
+}
+
+button:disabled {
+  opacity: 0.45;
+  cursor: default;
+  box-shadow: none;
+}
+
+/* Gradien halus, bukan warna datar: cukup untuk memberi kedalaman tanpa
+   membuat tombol terlihat seperti mainan. */
+button.primary {
+  background: linear-gradient(180deg, var(--accent-2), var(--accent));
+  border-color: transparent;
+  color: var(--accent-text);
+  font-weight: 600;
+  box-shadow:
+    var(--shadow-sm),
+    0 4px 14px color-mix(in srgb, var(--accent) 32%, transparent);
+}
+
+button.primary:hover:not(:disabled) {
+  filter: brightness(1.07);
+  background: linear-gradient(180deg, var(--accent-2), var(--accent));
+}
+
+button.ghost {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+  color: var(--text-muted);
+}
+
+button.ghost:hover:not(:disabled) {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+button.danger {
+  color: var(--danger);
+  border-color: color-mix(in srgb, var(--danger) 30%, var(--border));
+}
+
+button.danger:hover:not(:disabled) {
+  background: var(--danger-bg);
+}
+
+/* ── Form ──────────────────────────────────────────────────────────────── */
+
+input[type="text"],
+input[type="search"],
+select {
+  font: inherit;
+  color: inherit;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  width: 100%;
+  user-select: text;
+  box-shadow: var(--shadow-sm);
+  transition: border-color 140ms ease, box-shadow 140ms ease;
+}
+
+input:focus,
+select:focus {
+  border-color: var(--focus);
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  accent-color: var(--accent);
+  width: 15px;
+  height: 15px;
+}
+
+/* ── Tipografi ─────────────────────────────────────────────────────────── */
+
+h1 {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  margin: 0 0 16px;
+}
+
+h2 {
+  font-size: 16px;
+  font-weight: 650;
+  letter-spacing: -0.005em;
+  margin: 0 0 8px;
+}
+
+h3,
+h4,
+h5 {
+  font-size: 14px;
+  font-weight: 650;
+  margin: 14px 0 4px;
+}
+
+p {
+  margin: 0 0 8px;
+}
+
+ul {
+  margin: 4px 0 8px;
+  padding-left: 20px;
+}
+
+/* `--focus` adalah varian aksen yang tetap terbaca di atas permukaan tema
+   yang sedang aktif: slate di tema terang, khaki di tema gelap. `--accent`
+   sendiri hanya aman sebagai ISIAN, tidak sebagai warna teks. */
+a {
+  color: var(--focus);
+}
+
+code {
+  font-family: "Cascadia Mono", ui-monospace, monospace;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  padding: 1px 5px;
+  border-radius: 5px;
+  font-size: 0.9em;
+}
+
+.muted {
+  color: var(--text-muted);
+}
+
+.small {
+  font-size: 12.5px;
+}
+
+.selectable {
+  user-select: text;
+}
+
+/* ── Permukaan ─────────────────────────────────────────────────────────── */
+
+.card {
+  background: linear-gradient(180deg, var(--surface), var(--bg-accent));
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+/* ── Badge ─────────────────────────────────────────────────────────────── */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+  padding: 3px 9px;
+  border-radius: 999px;
+  white-space: nowrap;
+  border: 1px solid transparent;
+}
+
+.badge.update {
+  background: linear-gradient(180deg, var(--accent-2), var(--accent));
+  color: var(--accent-text);
+}
+
+.badge.breaking {
+  background: var(--danger-bg);
+  color: var(--danger);
+  border-color: color-mix(in srgb, var(--danger) 28%, transparent);
+}
+
+.badge.security {
+  background: var(--warning-bg);
+  color: var(--warning);
+  border-color: color-mix(in srgb, var(--warning) 28%, transparent);
+}
+
+.badge.ok {
+  background: var(--success-bg);
+  color: var(--success);
+  border-color: color-mix(in srgb, var(--success) 28%, transparent);
+}
+
+.badge.warn {
+  background: var(--warning-bg);
+  color: var(--warning);
+  border-color: color-mix(in srgb, var(--warning) 28%, transparent);
+}
+
+.badge.neutral {
+  background: var(--surface-3);
+  color: var(--text-muted);
+  border-color: var(--border);
+}
+
+/* ── Notice ────────────────────────────────────────────────────────────── */
+
+.notice {
+  border-radius: var(--radius-sm);
+  padding: 11px 14px;
+  font-size: 13px;
+  border: 1px solid transparent;
+  border-left-width: 3px;
+}
+
+.notice.warn {
+  background: var(--warning-bg);
+  color: var(--warning);
+  border-color: color-mix(in srgb, var(--warning) 28%, transparent);
+  border-left-color: var(--warning);
+}
+
+.notice.danger {
+  background: var(--danger-bg);
+  color: var(--danger);
+  border-color: color-mix(in srgb, var(--danger) 28%, transparent);
+  border-left-color: var(--danger);
+}
+
+.notice.info {
+  background: var(--surface-2);
+  color: var(--text-muted);
+  border-color: var(--border);
+  border-left-color: var(--border-strong);
+}
+
+/* ── Layout kecil ──────────────────────────────────────────────────────── */
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.spread {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ── Progres ───────────────────────────────────────────────────────────── */
+
+.progress-track {
+  height: 7px;
+  border-radius: 999px;
+  background: var(--surface-3);
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  transition: width 160ms linear;
+}
+
+.progress-fill.indeterminate {
+  width: 35%;
+  animation: slide 1.1s ease-in-out infinite;
+}
+
+@keyframes slide {
+  0% {
+    margin-left: -35%;
+  }
+  100% {
+    margin-left: 100%;
+  }
+}
+
+/* ── Markdown ──────────────────────────────────────────────────────────── */
+
+.md-rule {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 18px 0;
+}
+
+/* Screenshot di README. Lebarnya dibatasi panel, bukan lebar aslinya — banyak
+   README memakai gambar 820 px atau lebih. */
+.md-img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  margin: 12px 0;
+}
+
+/* Gambar yang gagal diambil backend: tampilkan keterangannya, jangan
+   tinggalkan lubang tanpa penjelasan. */
+.md-img-alt {
+  color: var(--text-muted);
+  font-size: 12.5px;
+  font-style: italic;
+  margin: 6px 0;
+}
+
+/* Blok kode dan diagram ASCII: spasi dipertahankan apa adanya, dan blok yang
+   lebih lebar dari panelnya menggulir sendiri. Membungkus barisnya akan
+   merusak diagram signal flow, yang justru mengandalkan posisi kolom. */
+.md-code {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  overflow-x: auto;
+  margin: 12px 0;
+}
+
+.md-code code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  white-space: pre;
+  display: block;
+}
+
+/* Tabel di README bisa lebih lebar daripada panelnya; ia menggulir sendiri
+   alih-alih memaksa seluruh halaman menggulir ke samping. */
+.md-table-wrap {
+  overflow-x: auto;
+  margin: 12px 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.md-table-wrap table {
+  border-collapse: collapse;
+  min-width: 100%;
+  font-size: 13px;
+}
+
+.md-table-wrap th,
+.md-table-wrap td {
+  border-bottom: 1px solid var(--border);
+  padding: 8px 12px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.md-table-wrap tr:last-child td {
+  border-bottom: none;
+}
+
+.md-table-wrap th {
+  background: var(--surface-2);
+  font-weight: 650;
+}
+
+/* ── Scrollbar ─────────────────────────────────────────────────────────── */
+
+::-webkit-scrollbar {
+  width: 11px;
+  height: 11px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 999px;
+  border: 3px solid var(--bg);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
