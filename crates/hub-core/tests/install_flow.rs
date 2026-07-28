@@ -172,10 +172,7 @@ async fn fresh_install_writes_bundle_and_records_files() {
     assert_eq!(entry.installed_files.len(), 3);
 
     // Staging tidak boleh menyisakan apa pun.
-    assert_eq!(
-        std::fs::read_dir(&fx.paths.staging_dir).unwrap().count(),
-        0
-    );
+    assert_eq!(std::fs::read_dir(&fx.paths.staging_dir).unwrap().count(), 0);
 }
 
 #[tokio::test]
@@ -317,7 +314,10 @@ async fn uninstall_removes_plugin_but_keeps_user_presets() {
         .join("x86_64-win")
         .join("MyComp.vst3")
         .exists());
-    assert!(presets.join("my.vstpreset").exists(), "preset harus selamat");
+    assert!(
+        presets.join("my.vstpreset").exists(),
+        "preset harus selamat"
+    );
 }
 
 #[tokio::test]
@@ -371,10 +371,7 @@ async fn cancelled_job_leaves_no_partial_bundle() {
     let result = install::execute(&plan, &ctx, &mut fx.db, |_| {}).await;
     assert!(matches!(result, Err(HubError::Cancelled)));
     assert!(!fx.vst3_dir.join("MyComp.vst3").exists());
-    assert_eq!(
-        std::fs::read_dir(&fx.paths.staging_dir).unwrap().count(),
-        0
-    );
+    assert_eq!(std::fs::read_dir(&fx.paths.staging_dir).unwrap().count(), 0);
 }
 
 #[tokio::test]

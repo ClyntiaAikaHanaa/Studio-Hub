@@ -5,6 +5,11 @@ edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
 
+# Tidak pernah diterbitkan ke crates.io: crate ini hanya bermakna di dalam
+# workspace Studio Hub, dan menandainya privat juga membuat dependensi path
+# antar-crate di sini sah di mata cargo-deny.
+publish = false
+
 # Sengaja TIDAK bergantung pada Tauri (PRD §11.1): logika instalasi harus
 # dapat diuji tanpa membangun aplikasi GUI.
 

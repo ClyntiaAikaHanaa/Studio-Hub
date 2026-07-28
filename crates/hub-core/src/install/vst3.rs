@@ -119,7 +119,11 @@ pub fn restore_from_backup(backup: &Path, staging_dir: &Path, install_dir: &Path
 /// Untuk entri `adopted` (daftar file tidak diketahui) pemanggil harus
 /// meneruskan `files` kosong; fungsi ini kemudian hanya menghapus bundle jika
 /// isinya persis seperti bundle VST3 dan tidak ada file asing di dalamnya.
-pub fn remove_installed(install_dir: &Path, files: &[String], adopted: bool) -> Result<Vec<String>> {
+pub fn remove_installed(
+    install_dir: &Path,
+    files: &[String],
+    adopted: bool,
+) -> Result<Vec<String>> {
     let mut failures = Vec::new();
 
     if !files.is_empty() {

@@ -25,7 +25,9 @@ pub enum AppEvent {
         update_count: usize,
     },
     #[serde(rename_all = "camelCase")]
-    CatalogStale { last_success_at: Option<String> },
+    CatalogStale {
+        last_success_at: Option<String>,
+    },
     LibraryChanged,
 }
 

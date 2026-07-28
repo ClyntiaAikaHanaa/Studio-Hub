@@ -12,7 +12,8 @@ use tauri::Manager;
 use state::AppState;
 
 fn main() {
-    let paths = hub_core::paths::AppPaths::resolve().expect("tidak dapat menentukan direktori data");
+    let paths =
+        hub_core::paths::AppPaths::resolve().expect("tidak dapat menentukan direktori data");
     let _log_guard = init_logging(&paths);
 
     tracing::info!(version = hub_core::LAUNCHER_VERSION, "Studio Hub mulai");

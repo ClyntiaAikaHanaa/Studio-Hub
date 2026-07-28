@@ -106,7 +106,10 @@ mod tests {
     #[test]
     fn default_scope_is_per_user() {
         // ADR-3: jalur paling umum tidak boleh memicu UAC.
-        assert_eq!(Prefs::default().default_install_scope, InstallScope::CurrentUser);
+        assert_eq!(
+            Prefs::default().default_install_scope,
+            InstallScope::CurrentUser
+        );
     }
 
     #[test]

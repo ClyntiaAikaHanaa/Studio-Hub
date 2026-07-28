@@ -35,7 +35,10 @@ pub enum FetchOutcome {
     NotModified(Catalog),
     Fetched(Catalog),
     /// Fetch gagal, kita menyajikan cache terakhir + menandainya usang.
-    StaleFallback { catalog: Catalog, error: HubError },
+    StaleFallback {
+        catalog: Catalog,
+        error: HubError,
+    },
 }
 
 impl FetchOutcome {
@@ -288,7 +291,10 @@ fn now_unix() -> u64 {
 fn format_unix(secs: u64) -> String {
     time::OffsetDateTime::from_unix_timestamp(secs as i64)
         .ok()
-        .and_then(|t| t.format(&time::format_description::well_known::Rfc3339).ok())
+        .and_then(|t| {
+            t.format(&time::format_description::well_known::Rfc3339)
+                .ok()
+        })
         .unwrap_or_default()
 }
 

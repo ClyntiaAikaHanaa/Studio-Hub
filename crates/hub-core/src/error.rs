@@ -87,7 +87,10 @@ impl HubError {
     pub fn is_retryable(&self) -> bool {
         matches!(
             self,
-            HubError::NetworkUnreachable { retryable: true, .. } | HubError::FileLocked { .. }
+            HubError::NetworkUnreachable {
+                retryable: true,
+                ..
+            } | HubError::FileLocked { .. }
         )
     }
 }

@@ -5,6 +5,25 @@
 
 [advisories]
 version = 2
+
+# Advisory `unmaintained` hanya diberlakukan untuk dependensi yang kita pilih
+# sendiri, bukan seluruh pohon transitif.
+#
+# Alasannya konkret: tujuh crate di pohon ini ditandai unmaintained, dan
+# ketujuhnya milik Tauri, bukan kita. `unic-*` masuk lewat urlpattern di dalam
+# tauri-utils, binding GTK3 lewat runtime Linux Tauri, `proc-macro-error` lewat
+# macro-nya. Advisory-nya sendiri menyatakan "No safe upgrade is available",
+# jadi tidak ada yang bisa kita lakukan selain menunggu Tauri menggantinya.
+#
+# Menjadikannya "all" berarti CI merah permanen karena hal yang di luar kendali
+# kita, dan CI yang selalu merah berhenti dibaca orang. Menjadikannya "none"
+# berarti kita tidak akan pernah tahu kalau dependensi milik kita sendiri
+# ditinggalkan. "workspace" menjaga yang bisa kita tindaklanjuti.
+#
+# Ini TIDAK melonggarkan advisory kerentanan: `vulnerability` tetap berlaku
+# penuh untuk seluruh pohon, termasuk yang transitif.
+unmaintained = "workspace"
+
 ignore = []
 
 [licenses]
@@ -20,12 +39,22 @@ allow = [
     "Zlib",
     "MPL-2.0",
     "CC0-1.0",
+    # Dipakai `webpki-roots`, yang mendistribusikan daftar root CA Mozilla.
+    # CDLA-Permissive-2.0 adalah lisensi data permisif tanpa kewajiban
+    # copyleft dan tanpa syarat atribusi pada karya turunan.
+    "CDLA-Permissive-2.0",
 ]
 confidence-threshold = 0.9
 
 [bans]
 multiple-versions = "warn"
 wildcards = "deny"
+
+# Crate di dalam workspace ini saling merujuk lewat `path` tanpa versi, yang
+# secara teknis terbaca sebagai wildcard `*`. Itu bukan risiko rantai pasok:
+# sumbernya repo ini sendiri, bukan registry. Wildcard ke crate pihak ketiga
+# tetap ditolak.
+allow-wildcard-paths = true
 
 [sources]
 unknown-registry = "deny"

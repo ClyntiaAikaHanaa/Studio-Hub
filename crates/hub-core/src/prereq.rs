@@ -269,13 +269,7 @@ pub fn available_space(path: &Path) -> Option<u64> {
 
     unsafe {
         let mut free_to_caller: u64 = 0;
-        GetDiskFreeSpaceExW(
-            PCWSTR(wide.as_ptr()),
-            Some(&mut free_to_caller),
-            None,
-            None,
-        )
-        .ok()?;
+        GetDiskFreeSpaceExW(PCWSTR(wide.as_ptr()), Some(&mut free_to_caller), None, None).ok()?;
         Some(free_to_caller)
     }
 }

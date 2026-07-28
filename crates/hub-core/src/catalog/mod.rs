@@ -325,10 +325,7 @@ impl Catalog {
         let mut seen_ids = std::collections::HashSet::new();
 
         for (index, value) in raw.plugins.into_iter().enumerate() {
-            let probe_id = value
-                .get("id")
-                .and_then(|v| v.as_str())
-                .map(str::to_string);
+            let probe_id = value.get("id").and_then(|v| v.as_str()).map(str::to_string);
 
             match serde_json::from_value::<Plugin>(value) {
                 Ok(plugin) => match validate::check_plugin(&plugin) {

@@ -85,9 +85,12 @@ fn run(pipe_name: &str) -> Result<(), String> {
         let command: HelperCommand = match serde_json::from_str(line.trim()) {
             Ok(c) => c,
             Err(e) => {
-                respond(&mut writer, HelperResponse::Error {
-                    message: format!("command tidak dapat diparsing: {e}"),
-                })?;
+                respond(
+                    &mut writer,
+                    HelperResponse::Error {
+                        message: format!("command tidak dapat diparsing: {e}"),
+                    },
+                )?;
                 continue;
             }
         };
@@ -100,7 +103,9 @@ fn run(pipe_name: &str) -> Result<(), String> {
         // kombinasi yang mungkin terjadi saat update parsial.
         if !handshaked {
             match command {
-                HelperCommand::Hello { protocol_version } if protocol_version == PROTOCOL_VERSION => {
+                HelperCommand::Hello { protocol_version }
+                    if protocol_version == PROTOCOL_VERSION =>
+                {
                     handshaked = true;
                     respond(&mut writer, HelperResponse::Ok)?;
                     continue;
@@ -114,9 +119,12 @@ fn run(pipe_name: &str) -> Result<(), String> {
                     return Ok(());
                 }
                 _ => {
-                    respond(&mut writer, HelperResponse::Error {
-                        message: "handshake belum dilakukan".into(),
-                    })?;
+                    respond(
+                        &mut writer,
+                        HelperResponse::Error {
+                            message: "handshake belum dilakukan".into(),
+                        },
+                    )?;
                     return Ok(());
                 }
             }
@@ -135,10 +143,7 @@ fn run(_pipe_name: &str) -> Result<(), String> {
 }
 
 #[cfg(windows)]
-fn respond(
-    writer: &mut std::fs::File,
-    response: HelperResponse,
-) -> Result<(), String> {
+fn respond(writer: &mut std::fs::File, response: HelperResponse) -> Result<(), String> {
     use std::io::Write;
     let mut line =
         serde_json::to_string(&response).map_err(|e| format!("serialisasi respons: {e}"))?;
@@ -313,7 +318,10 @@ fn verify_peer(pipe: &std::fs::File) -> Result<(), String> {
         .to_path_buf();
 
     if !client_exe.starts_with(&helper_dir) {
-        tracing::error!(?client_exe, "client di luar direktori instalasi, koneksi ditolak");
+        tracing::error!(
+            ?client_exe,
+            "client di luar direktori instalasi, koneksi ditolak"
+        );
         return Err("client tidak tepercaya".into());
     }
 
@@ -384,8 +392,14 @@ mod tests {
             }
             None
         }
-        assert_eq!(parse(&["--pipe", "\\\\.\\pipe\\x"]).as_deref(), Some("\\\\.\\pipe\\x"));
-        assert_eq!(parse(&["--pipe=\\\\.\\pipe\\y"]).as_deref(), Some("\\\\.\\pipe\\y"));
+        assert_eq!(
+            parse(&["--pipe", "\\\\.\\pipe\\x"]).as_deref(),
+            Some("\\\\.\\pipe\\x")
+        );
+        assert_eq!(
+            parse(&["--pipe=\\\\.\\pipe\\y"]).as_deref(),
+            Some("\\\\.\\pipe\\y")
+        );
         assert_eq!(parse(&["--lain"]), None);
     }
 

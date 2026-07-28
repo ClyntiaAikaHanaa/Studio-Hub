@@ -34,7 +34,10 @@ pub fn known_bundles(catalog: &crate::catalog::Catalog) -> KnownBundles {
                 map.insert(build.archive_root.to_lowercase(), plugin.id.clone());
             }
         }
-        map.insert(format!("{}.vst3", plugin.name.to_lowercase()), plugin.id.clone());
+        map.insert(
+            format!("{}.vst3", plugin.name.to_lowercase()),
+            plugin.id.clone(),
+        );
     }
     map
 }
@@ -275,7 +278,9 @@ pub fn read_bundle_version(bundle: &Path) -> Option<String> {
                 }
                 tracing::debug!(name = ?info.name, "moduleinfo.json tanpa versi yang dapat diparsing");
             }
-            Err(e) => tracing::debug!(path = ?candidate, error = %e, "moduleinfo.json tidak terbaca"),
+            Err(e) => {
+                tracing::debug!(path = ?candidate, error = %e, "moduleinfo.json tidak terbaca")
+            }
         }
     }
 
@@ -397,7 +402,10 @@ fn read_file_version(path: &Path) -> Option<String> {
             &mut value_ptr,
             &mut value_len,
         );
-        if !ok.as_bool() || value_ptr.is_null() || (value_len as usize) < std::mem::size_of::<VS_FIXEDFILEINFO>() {
+        if !ok.as_bool()
+            || value_ptr.is_null()
+            || (value_len as usize) < std::mem::size_of::<VS_FIXEDFILEINFO>()
+        {
             return None;
         }
         let info = &*(value_ptr as *const VS_FIXEDFILEINFO);

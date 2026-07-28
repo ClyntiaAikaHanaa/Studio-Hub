@@ -254,7 +254,10 @@ pub fn build_plugin_view(
 /// Rilis tanpa build untuk platform ini dilewati. Menampilkannya berarti
 /// menawarkan tombol yang dijamin gagal — dan kegagalannya baru muncul setelah
 /// pengguna menekan Install.
-fn build_version_options(plugin: &Plugin, installed: Option<&InstalledEntry>) -> Vec<VersionOption> {
+fn build_version_options(
+    plugin: &Plugin,
+    installed: Option<&InstalledEntry>,
+) -> Vec<VersionOption> {
     let installed_version = installed.map(|e| e.version.as_str());
 
     let mut options: Vec<VersionOption> = std::iter::once((&plugin.latest, true))

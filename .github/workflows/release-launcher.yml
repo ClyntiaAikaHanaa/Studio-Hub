@@ -25,10 +25,12 @@ jobs:
 
       - run: npm ci --prefix ui
 
+      # Action yang sama dengan ci.yml, memakai biner siap pakai. Versi lama
+      # menjalankan `cargo install cargo-deny --locked`, yang mengkompilasi
+      # cargo-deny dari sumber di runner dan sendirian memakan belasan menit
+      # sebelum satu baris kode proyek ini pun dibangun.
       - name: Audit dependencies
-        run: |
-          cargo install cargo-deny --locked
-          cargo deny check
+        uses: EmbarkStudios/cargo-deny-action@8371184bd11e21dcf8ac82ebf8c9c9f74ebf7268 # v2.0.4
 
       - run: cargo test --workspace
 

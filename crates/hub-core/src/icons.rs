@@ -158,12 +158,7 @@ fn purge_other_revisions(icons_dir: &Path, plugin_id: &str, keep_stem: &str) {
     }
 }
 
-async fn download(
-    icons_dir: &Path,
-    plugin_id: &str,
-    stem: &str,
-    url: &str,
-) -> Result<PathBuf> {
+async fn download(icons_dir: &Path, plugin_id: &str, stem: &str, url: &str) -> Result<PathBuf> {
     // `plugin_id` sudah divalidasi `[a-z0-9_-]` oleh catalog::validate, jadi ia
     // tidak dapat keluar dari direktori cache. Diperiksa ulang di sini karena
     // fungsi ini juga dapat dipanggil dari jalur lain.
@@ -234,7 +229,10 @@ mod tests {
     fn detects_formats_from_magic_bytes_not_extension() {
         let png = [0x89, b'P', b'N', b'G', 0x0d, 0x0a, 0x1a, 0x0a, 0, 0];
         assert_eq!(ImageKind::detect(&png), Some(ImageKind::Png));
-        assert_eq!(ImageKind::detect(&[0xff, 0xd8, 0xff, 0xe0]), Some(ImageKind::Jpeg));
+        assert_eq!(
+            ImageKind::detect(&[0xff, 0xd8, 0xff, 0xe0]),
+            Some(ImageKind::Jpeg)
+        );
         assert_eq!(ImageKind::detect(b"GIF89a...."), Some(ImageKind::Gif));
 
         let mut webp = b"RIFF____WEBPVP8 ".to_vec();

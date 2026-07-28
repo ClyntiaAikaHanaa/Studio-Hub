@@ -177,7 +177,8 @@ pub fn extract_verified(
         // `entry.size()` sudah dibatasi di fase 1, tapi header ZIP bisa
         // berbohong tentang ukuran. `take` membuat batas itu mengikat pada
         // byte yang benar-benar mengalir.
-        let mut limited = (&mut entry).take(options.max_total_bytes.saturating_sub(report.bytes_written) + 1);
+        let mut limited =
+            (&mut entry).take(options.max_total_bytes.saturating_sub(report.bytes_written) + 1);
         let written = std::io::copy(&mut limited, &mut out)?;
         report.bytes_written = report.bytes_written.saturating_add(written);
         if report.bytes_written > options.max_total_bytes {
@@ -290,10 +291,7 @@ mod tests {
 
     #[test]
     fn zip_slip_is_rejected_and_writes_nothing() {
-        let (_g, zip) = build_zip(&[
-            ("MyComp.vst3/ok.txt", b"ok"),
-            ("../../evil.dll", b"pwned"),
-        ]);
+        let (_g, zip) = build_zip(&[("MyComp.vst3/ok.txt", b"ok"), ("../../evil.dll", b"pwned")]);
         let out = tempfile::tempdir().unwrap();
         let err = extract_verified(
             &zip,

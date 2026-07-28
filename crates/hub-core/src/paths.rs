@@ -63,7 +63,10 @@ pub fn probe_writable(dir: &Path) -> bool {
     if std::fs::create_dir_all(dir).is_err() {
         return false;
     }
-    let probe = dir.join(format!(".studiohub-probe-{}", uuid::Uuid::new_v4().simple()));
+    let probe = dir.join(format!(
+        ".studiohub-probe-{}",
+        uuid::Uuid::new_v4().simple()
+    ));
     match std::fs::write(&probe, b"probe") {
         Ok(()) => {
             let _ = std::fs::remove_file(&probe);
@@ -181,7 +184,9 @@ impl AppPaths {
         // `plugin_id` sudah divalidasi `[a-z0-9_-]` (catalog::validate), jadi
         // tidak dapat keluar dari direktori backup. Versi disanitasi di sini
         // karena ia berasal dari sumber yang sama tapi punya bentuk lebih bebas.
-        self.backup_dir.join(plugin_id).join(sanitize_component(version))
+        self.backup_dir
+            .join(plugin_id)
+            .join(sanitize_component(version))
     }
 
     /// Direktori staging untuk satu job, se-volume dengan `target_dir` jika

@@ -55,8 +55,13 @@ pub async fn catalog_get(
 
     let locale = state.prefs.lock().await.locale.clone();
     let db = state.db.lock().await;
-    let view =
-        views::build_catalog_view(&catalog, &db, stale, status.last_success_at.clone(), &locale);
+    let view = views::build_catalog_view(
+        &catalog,
+        &db,
+        stale,
+        status.last_success_at.clone(),
+        &locale,
+    );
     let update_count = views::build_update_summary(&catalog, &db).items.len();
     drop(db);
 
@@ -348,11 +353,15 @@ pub async fn rollback_start(
     let entry = install::rollback(&mut db, &state.paths, &plugin_id)?;
     drop(db);
 
-    state.telemetry.lock().await.record(Event::RollbackPerformed {
-        plugin_id: plugin_id.clone(),
-        from: from.unwrap_or_default(),
-        to: entry.version.clone(),
-    });
+    state
+        .telemetry
+        .lock()
+        .await
+        .record(Event::RollbackPerformed {
+            plugin_id: plugin_id.clone(),
+            from: from.unwrap_or_default(),
+            to: entry.version.clone(),
+        });
     events::emit_app(&app, AppEvent::LibraryChanged);
     Ok(entry.version)
 }
@@ -442,7 +451,10 @@ pub async fn reveal_in_explorer(state: State<'_, AppState>, plugin_id: String) -
 /// `None` berarti plugin tidak punya ikon atau unduhannya gagal — bukan error.
 /// Ikon adalah hiasan; ketiadaannya tidak boleh menggagalkan render daftar.
 #[tauri::command]
-pub async fn plugin_icon(state: State<'_, AppState>, plugin_id: String) -> CmdResult<Option<String>> {
+pub async fn plugin_icon(
+    state: State<'_, AppState>,
+    plugin_id: String,
+) -> CmdResult<Option<String>> {
     let icon_url = {
         let catalog = state.catalog.lock().await;
         catalog
@@ -451,12 +463,9 @@ pub async fn plugin_icon(state: State<'_, AppState>, plugin_id: String) -> CmdRe
             .and_then(|p| p.icon_url.clone())
     };
 
-    let path = hub_core::icons::ensure_cached(
-        &state.paths.icons_dir(),
-        &plugin_id,
-        icon_url.as_deref(),
-    )
-    .await;
+    let path =
+        hub_core::icons::ensure_cached(&state.paths.icons_dir(), &plugin_id, icon_url.as_deref())
+            .await;
 
     Ok(path.map(|p| p.to_string_lossy().to_string()))
 }
@@ -639,10 +648,11 @@ pub async fn version_skip(
     db.save(&state.paths.installed_db())?;
     drop(db);
 
-    state.telemetry.lock().await.record(Event::UpdateSkipped {
-        plugin_id,
-        version,
-    });
+    state
+        .telemetry
+        .lock()
+        .await
+        .record(Event::UpdateSkipped { plugin_id, version });
     events::emit_app(&app, AppEvent::LibraryChanged);
     Ok(())
 }

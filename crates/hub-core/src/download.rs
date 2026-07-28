@@ -34,7 +34,9 @@ pub struct DownloadRequest {
 #[serde(tag = "kind", rename_all = "camelCase")]
 pub enum DownloadProgress {
     #[serde(rename_all = "camelCase")]
-    Started { total_bytes: u64 },
+    Started {
+        total_bytes: u64,
+    },
     #[serde(rename_all = "camelCase")]
     Progress {
         received: u64,
@@ -43,7 +45,9 @@ pub enum DownloadProgress {
     },
     Verifying,
     #[serde(rename_all = "camelCase")]
-    Done { path: PathBuf },
+    Done {
+        path: PathBuf,
+    },
 }
 
 /// Token pembatalan sederhana; job_cancel men-set flag ini.
@@ -332,8 +336,8 @@ mod tests {
 
     #[test]
     fn only_https_allowlisted_hosts_pass() {
-        let ok = url::Url::parse("https://github.com/robi/MyComp/releases/download/v1/x.zip")
-            .unwrap();
+        let ok =
+            url::Url::parse("https://github.com/robi/MyComp/releases/download/v1/x.zip").unwrap();
         assert!(validate_download_url(&ok).is_ok());
 
         let plain = url::Url::parse("http://github.com/x.zip").unwrap();

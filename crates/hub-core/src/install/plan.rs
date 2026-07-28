@@ -149,9 +149,8 @@ impl InstallPlan {
     /// dari frontend — dan eksekutor menolak plan seperti itu (lihat
     /// [`crate::install::execute`]).
     pub fn digest(&self) -> Result<Sha256Digest> {
-        self.expected_digest.ok_or_else(|| {
-            HubError::internal("InstallPlan tanpa hash tidak dapat dieksekusi")
-        })
+        self.expected_digest
+            .ok_or_else(|| HubError::internal("InstallPlan tanpa hash tidak dapat dieksekusi"))
     }
 }
 
@@ -200,7 +199,13 @@ pub fn build_plan(input: PlanInput<'_>) -> Result<InstallPlan> {
         blockers.push(Blocker::NoCompatibleBuild {
             target: crate::catalog::CURRENT_TARGET.to_string(),
         });
-        return Ok(skeleton_plan(plugin, release, input.scope, blockers, warnings));
+        return Ok(skeleton_plan(
+            plugin,
+            release,
+            input.scope,
+            blockers,
+            warnings,
+        ));
     };
 
     // PRD §20.3: `url` adalah nilai yang di-*resolve*, bukan konstanta. Untuk
@@ -209,7 +214,13 @@ pub fn build_plan(input: PlanInput<'_>) -> Result<InstallPlan> {
         blockers.push(Blocker::NoDownloadUrl {
             plugin_id: plugin.id.clone(),
         });
-        return Ok(skeleton_plan(plugin, release, input.scope, blockers, warnings));
+        return Ok(skeleton_plan(
+            plugin,
+            release,
+            input.scope,
+            blockers,
+            warnings,
+        ));
     };
 
     let expected_digest = verify::parse_hex(&build.sha256)?;

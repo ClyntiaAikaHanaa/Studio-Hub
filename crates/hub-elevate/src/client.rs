@@ -166,9 +166,7 @@ mod transport {
     use hub_core::{HubError, Result};
     use windows::core::PCWSTR;
     use windows::Win32::Foundation::{HANDLE, INVALID_HANDLE_VALUE};
-    use windows::Win32::Storage::FileSystem::{
-        PIPE_ACCESS_DUPLEX, WRITE_DAC,
-    };
+    use windows::Win32::Storage::FileSystem::{PIPE_ACCESS_DUPLEX, WRITE_DAC};
     use windows::Win32::System::Pipes::{
         ConnectNamedPipe, CreateNamedPipeW, PIPE_READMODE_BYTE, PIPE_TYPE_BYTE, PIPE_WAIT,
     };
@@ -198,7 +196,10 @@ mod transport {
             let handle = unsafe {
                 CreateNamedPipeW(
                     PCWSTR(wide_name.as_ptr()),
-                    PIPE_ACCESS_DUPLEX | windows::Win32::Storage::FileSystem::FILE_FLAGS_AND_ATTRIBUTES(WRITE_DAC.0),
+                    PIPE_ACCESS_DUPLEX
+                        | windows::Win32::Storage::FileSystem::FILE_FLAGS_AND_ATTRIBUTES(
+                            WRITE_DAC.0,
+                        ),
                     PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_WAIT,
                     1, // satu instance: tidak ada ruang untuk client kedua
                     MAX_MESSAGE_BYTES as u32,
@@ -232,7 +233,9 @@ mod transport {
                 if let Err(e) = ConnectNamedPipe(handle, None) {
                     const ERROR_PIPE_CONNECTED: i32 = 535;
                     if e.code().0 & 0xffff != ERROR_PIPE_CONNECTED {
-                        return Err(HubError::internal(format!("client helper tidak terhubung: {e}")));
+                        return Err(HubError::internal(format!(
+                            "client helper tidak terhubung: {e}"
+                        )));
                     }
                 }
             }
@@ -251,8 +254,9 @@ mod transport {
             if read == 0 {
                 return Err(HubError::internal("helper menutup pipe"));
             }
-            serde_json::from_str(response.trim())
-                .map_err(|e| HubError::internal(format!("respons helper tidak dapat diparsing: {e}")))
+            serde_json::from_str(response.trim()).map_err(|e| {
+                HubError::internal(format!("respons helper tidak dapat diparsing: {e}"))
+            })
         }
     }
 

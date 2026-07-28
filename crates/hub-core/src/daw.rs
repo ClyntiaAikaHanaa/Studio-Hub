@@ -19,9 +19,8 @@ use crate::error::ProcessHolder;
 pub fn detect_running_daws(known: &[DawProcess]) -> Vec<ProcessHolder> {
     use sysinfo::{ProcessRefreshKind, RefreshKind, System};
 
-    let system = System::new_with_specifics(
-        RefreshKind::new().with_processes(ProcessRefreshKind::new()),
-    );
+    let system =
+        System::new_with_specifics(RefreshKind::new().with_processes(ProcessRefreshKind::new()));
 
     let mut found: Vec<ProcessHolder> = Vec::new();
     for (pid, process) in system.processes() {

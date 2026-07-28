@@ -503,11 +503,8 @@ pub fn uninstall(
             plugin_id: plugin_id.to_string(),
         })?;
 
-    let mut failures = vst3::remove_installed(
-        &entry.install_dir,
-        &entry.installed_files,
-        entry.adopted,
-    )?;
+    let mut failures =
+        vst3::remove_installed(&entry.install_dir, &entry.installed_files, entry.adopted)?;
 
     // FR-5.3: arsip backup ikut dihapus.
     let backup_root = paths.backup_dir.join(plugin_id);
@@ -548,11 +545,10 @@ pub fn rollback(db: &mut InstalledDb, paths: &AppPaths, plugin_id: &str) -> Resu
         .clone()
         .ok_or_else(|| HubError::internal("tidak ada backup untuk plugin ini"))?;
 
-    let staging = paths
-        .staging_for(
-            entry.install_dir.parent().unwrap_or(&entry.install_dir),
-            &format!("rollback-{}", uuid::Uuid::new_v4().simple()),
-        );
+    let staging = paths.staging_for(
+        entry.install_dir.parent().unwrap_or(&entry.install_dir),
+        &format!("rollback-{}", uuid::Uuid::new_v4().simple()),
+    );
     std::fs::create_dir_all(&staging)?;
 
     let result = vst3::restore_from_backup(&backup.path, &staging, &entry.install_dir);
@@ -641,20 +637,23 @@ pub fn cleanup_after_crash(paths: &AppPaths, db: &mut InstalledDb) -> Result<usi
 }
 
 fn finish_interrupted(db: &mut InstalledDb, paths: &AppPaths, journal: &Journal) -> Result<()> {
-    let mut entry = db.get(&journal.plugin_id).cloned().unwrap_or(InstalledEntry {
-        plugin_id: journal.plugin_id.clone(),
-        version: journal.version.clone(),
-        installed_at: now_rfc3339(),
-        scope: crate::paths::InstallScope::CurrentUser,
-        install_dir: journal.install_dir.clone(),
-        artifact_sha256: None,
-        installed_files: Vec::new(),
-        backup: None,
-        skipped_versions: Vec::new(),
-        adopted: false,
-        health: Health::Ok,
-        highest_version_seen: None,
-    });
+    let mut entry = db
+        .get(&journal.plugin_id)
+        .cloned()
+        .unwrap_or(InstalledEntry {
+            plugin_id: journal.plugin_id.clone(),
+            version: journal.version.clone(),
+            installed_at: now_rfc3339(),
+            scope: crate::paths::InstallScope::CurrentUser,
+            install_dir: journal.install_dir.clone(),
+            artifact_sha256: None,
+            installed_files: Vec::new(),
+            backup: None,
+            skipped_versions: Vec::new(),
+            adopted: false,
+            health: Health::Ok,
+            highest_version_seen: None,
+        });
     entry.version = journal.version.clone();
     entry.install_dir = journal.install_dir.clone();
     entry.health = Health::Ok;
