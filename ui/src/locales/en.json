@@ -14,6 +14,8 @@
   "detail.latest": "latest",
   "detail.olderVersion": "Not the latest version",
   "detail.changelog": "What changed",
+  "detail.starOnGithub": "Star on GitHub",
+  "detail.starFailed": "Could not open the browser. The repository address is at the bottom of this page.",
 
   "common.update": "Update",
   "common.reinstall": "Reinstall",

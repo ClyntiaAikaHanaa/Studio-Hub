@@ -14,6 +14,8 @@
   "detail.latest": "terbaru",
   "detail.olderVersion": "Bukan versi terbaru",
   "detail.changelog": "Apa yang berubah",
+  "detail.starOnGithub": "Beri bintang di GitHub",
+  "detail.starFailed": "Browser tidak dapat dibuka. Alamat reponya ada di bagian bawah halaman ini.",
 
   "common.update": "Perbarui",
   "common.reinstall": "Pasang ulang",

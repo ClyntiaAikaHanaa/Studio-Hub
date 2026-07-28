@@ -94,6 +94,28 @@
     };
   });
 
+  // Repo GitHub plugin ini. `sourceUrl` yang diutamakan karena itu memang repo
+  // kode sumbernya; `homepageUrl` dipakai kalau ternyata hanya itu yang ada.
+  let repoUrl = $derived(plugin.sourceUrl ?? plugin.homepageUrl);
+
+  let starFailed = $state(false);
+
+  // Membuka repo di browser, bukan menekan tombol bintang atas nama pengguna.
+  // Memberi bintang memerlukan token GitHub, dan meminta kredensial hanya untuk
+  // ini akan jauh lebih memaksa daripada nilainya. Membuka halamannya membiarkan
+  // pengguna memutuskan, dengan sesi login yang sudah mereka punya.
+  async function openRepo() {
+    if (!repoUrl) return;
+    starFailed = false;
+    try {
+      await api.openExternal(repoUrl);
+    } catch {
+      // Host di luar allowlist, atau tidak ada browser default. URL-nya sudah
+      // tampil di bagian bawah halaman ini, jadi masih ada jalan manual.
+      starFailed = true;
+    }
+  }
+
   function install() {
     requestInstall({
       pluginId: plugin.id,
@@ -180,6 +202,30 @@
         <button class="primary get" onclick={install} disabled={chosen.isInstalled}>
           {chosen.isInstalled ? $t("explore.installed") : $t("common.getPlugin")}
         </button>
+      {/if}
+    {/if}
+
+    <!-- Di luar rantai `{#if}` di atas: repo tetap layak dibuka meskipun
+         plugin ini belum tersedia untuk platform pengguna atau sedang dipasang. -->
+    {#if repoUrl}
+      <button class="ghost star" onclick={openRepo}>
+        <svg
+          class="star-icon"
+          viewBox="0 0 24 24"
+          width="15"
+          height="15"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <path
+            fill="currentColor"
+            d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.4-5.8-3-5.8 3 1.1-6.4L2.6 9.4l6.5-.9z"
+          />
+        </svg>
+        {$t("detail.starOnGithub")}
+      </button>
+      {#if starFailed}
+        <p class="small muted star-failed">{$t("detail.starFailed")}</p>
       {/if}
     {/if}
   </section>
@@ -296,6 +342,27 @@
 
   .get {
     margin-top: 12px;
+  }
+
+  /* Lebar penuh seperti tombol Get, supaya keduanya terbaca sebagai satu
+     kelompok aksi dan bukan tombol yang tercecer. */
+  .star {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    width: 100%;
+    margin-top: 8px;
+  }
+
+  /* Bintangnya ikut warna teks tombol, jadi ia tetap kontras di kedua tema
+     tanpa warna yang ditulis terpisah. */
+  .star-icon {
+    flex: 0 0 auto;
+  }
+
+  .star-failed {
+    margin-top: 6px;
   }
 
   .readme {
