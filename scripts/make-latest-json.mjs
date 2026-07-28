@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 //
-// Susun `latest.json` untuk `tauri-plugin-updater` (PRD Â§15.4).
+// Susun `latest.json` untuk `tauri-plugin-updater` (PRD §15.4).
 //
 // `tauri build` menghasilkan `.sig` untuk setiap bundle; manifest ini merujuk
 // URL bundle di GitHub Releases plus isi `.sig`-nya. Signature Ed25519 itulah
-// yang diverifikasi launcher sebelum memasang update dirinya sendiri â€” tanpa
+// yang diverifikasi launcher sebelum memasang update dirinya sendiri — tanpa
 // itu, siapa pun yang dapat mengubah manifest dapat mengirim launcher palsu ke
 // semua pengguna terpasang.
 
@@ -12,7 +12,14 @@ import { readFile, readdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 
 const REPO = process.env.GITHUB_REPOSITORY ?? "ClyntiaAikaHanaa/Studio-Hub";
-const TAG = (process.env.GITHUB_REF_NAME ?? "launcher-v1.0.0").trim();
+
+const conf = JSON.parse(await readFile(join("src-tauri", "tauri.conf.json"), "utf8"));
+
+// Di CI, `GITHUB_REF_NAME` adalah tag yang memicu workflow. Di luar CI kita
+// jatuh ke versi di config, bukan ke angka yang ditulis tangan: nilai tetap
+// seperti "launcher-v1.0.0" akan basi pada rilis pertama berikutnya dan
+// membuat skrip ini menolak jalan di mesin sendiri tanpa alasan yang jelas.
+const TAG = (process.env.GITHUB_REF_NAME ?? `launcher-v${conf.version}`).trim();
 const VERSION = TAG.replace(/^launcher-v/, "");
 
 // Versi di tag HARUS sama dengan versi di tauri.conf.json.
@@ -25,7 +32,6 @@ const VERSION = TAG.replace(/^launcher-v/, "");
 // yang menjelaskan kenapa.
 //
 // Gagal keras di sini jauh lebih murah daripada menemukannya setelah rilis.
-const conf = JSON.parse(await readFile(join("src-tauri", "tauri.conf.json"), "utf8"));
 if (conf.version !== VERSION) {
   console.error(
     `versi tidak cocok: tag "${TAG}" berarti ${VERSION}, ` +
@@ -54,13 +60,29 @@ for (const root of BUNDLE_ROOTS) {
 }
 
 if (!bundle) {
-  console.error("tidak menemukan bundle NSIS maupun MSI â€” apakah `tauri build` berhasil?");
+  console.error("tidak menemukan bundle NSIS maupun MSI — apakah `tauri build` berhasil?");
   process.exit(1);
 }
 
-const signature = (await readFile(`${bundle.path}.sig`, "utf8")).trim();
+// Berkas .sig hilang adalah kegagalan yang paling sering terjadi di sini, dan
+// stack trace Node tidak menjelaskan apa pun tentang penyebabnya. Ketiga sebab
+// di bawah adalah semua yang pernah kami temui.
+let signature;
+try {
+  signature = (await readFile(`${bundle.path}.sig`, "utf8")).trim();
+} catch {
+  console.error(
+    `${bundle.path}.sig tidak ada.\n` +
+      "Tauri hanya menulisnya kalau ketiga hal ini terpenuhi:\n" +
+      "  1. bundle.createUpdaterArtifacts = true di tauri.conf.json\n" +
+      "  2. plugins.updater.pubkey terisi\n" +
+      "  3. TAURI_SIGNING_PRIVATE_KEY dan _PASSWORD tersedia saat build",
+  );
+  process.exit(1);
+}
+
 if (!signature) {
-  console.error(`${bundle.path}.sig kosong â€” updater akan menolak update ini`);
+  console.error(`${bundle.path}.sig kosong — updater akan menolak update ini`);
   process.exit(1);
 }
 
@@ -77,7 +99,7 @@ const manifest = {
 };
 
 await writeFile("latest.json", `${JSON.stringify(manifest, null, 2)}\n`);
-console.log(`âœ“ latest.json â€” ${VERSION} (${bundle.name})`);
+console.log(`✓ latest.json — ${VERSION} (${bundle.name})`);
 
 /// Nama aset seperti yang akan ada di GitHub, bukan seperti di disk.
 ///

@@ -1593,7 +1593,7 @@ checksum = "6dbf3de79e51f3d586ab4cb9d5c3e2c14aa28ed23d180cf89b4df0454a69cc87"
 
 [[package]]
 name = "hub-core"
-version = "1.0.1"
+version = "1.0.2"
 dependencies = [
  "directories",
  "futures-util",
@@ -1616,7 +1616,7 @@ dependencies = [
 
 [[package]]
 name = "hub-elevate"
-version = "1.0.1"
+version = "1.0.2"
 dependencies = [
  "hub-core",
  "serde",
@@ -1630,7 +1630,7 @@ dependencies = [
 
 [[package]]
 name = "hub-helper"
-version = "1.0.1"
+version = "1.0.2"
 dependencies = [
  "hub-core",
  "hub-elevate",
@@ -3770,7 +3770,7 @@ checksum = "7da8b5736845d9f2fcb837ea5d9e2628564b3b043a70948a3f0b778838c5fb4f"
 
 [[package]]
 name = "studio-hub"
-version = "1.0.1"
+version = "1.0.2"
 dependencies = [
  "hub-core",
  "hub-elevate",
