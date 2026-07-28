@@ -8,7 +8,20 @@ permissions:
   contents: write
 
 jobs:
+  # Audit berdiri sendiri di Linux, bukan sebagai langkah di dalam `build`.
+  # `cargo-deny-action` adalah Docker action, dan Docker action tidak dapat
+  # berjalan di runner Windows sama sekali. Menaruhnya di job `build` yang
+  # `windows-latest` akan gagal seketika, apa pun isi deny.toml-nya.
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: EmbarkStudios/cargo-deny-action@3c6349835b2b7b196a839186cb8b78e02f7b5f25 # v2.1.1
+        with:
+          command: check
+
   build:
+    needs: audit
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -25,12 +38,11 @@ jobs:
 
       - run: npm ci --prefix ui
 
-      # Action yang sama dengan ci.yml, memakai biner siap pakai. Versi lama
-      # menjalankan `cargo install cargo-deny --locked`, yang mengkompilasi
-      # cargo-deny dari sumber di runner dan sendirian memakan belasan menit
-      # sebelum satu baris kode proyek ini pun dibangun.
-      - name: Audit dependencies
-        uses: EmbarkStudios/cargo-deny-action@8371184bd11e21dcf8ac82ebf8c9c9f74ebf7268 # v2.0.4
+      # Wajib sebelum `cargo test`: build script `tauri-build` menolak jalan
+      # kalau sidecar-nya belum ada, dan `beforeBuildCommand` yang biasanya
+      # membuatnya baru berjalan di langkah `tauri build` di bawah.
+      - name: Stage hub-helper sidecar
+        run: node scripts/build-sidecar.mjs
 
       - run: cargo test --workspace
 
