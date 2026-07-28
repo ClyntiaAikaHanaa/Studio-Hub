@@ -135,6 +135,13 @@
   "catalog.stale": "This data may be out of date — last refreshed {time}.",
   "catalog.offline": "You're offline. Installed plugins can still be managed.",
 
+  "launcherUpdate.available": "Studio Hub {version} is available.",
+  "launcherUpdate.required": "A plugin you want needs Studio Hub {version} or newer.",
+  "launcherUpdate.install": "Update and restart",
+  "launcherUpdate.installing": "Updating…",
+  "launcherUpdate.later": "Later",
+  "launcherUpdate.failed": "The update could not be installed.",
+
   "warning.elevation": "This install will ask for Administrator permission.",
   "warning.perUserPath": "Some DAWs don't scan per-user locations automatically. If the plugin doesn't show up after a rescan, add this folder to your DAW's settings: {path}",
   "warning.adopted": "This plugin was previously installed by hand. Studio Hub will take over managing it.",
@@ -146,6 +153,8 @@
   "settings.customPath": "Custom path",
   "settings.updates": "Updates",
   "settings.checkOnLaunch": "Check for updates when the app opens",
+  "settings.checkNow": "Check now",
+  "settings.upToDate": "Studio Hub is up to date.",
   "settings.betaChannel": "Join the beta channel",
   "settings.privacy": "Privacy",
   "settings.telemetry": "Send anonymous usage data",

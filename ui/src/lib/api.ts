@@ -99,6 +99,13 @@ export const versionSkip = (pluginId: string, version: string) =>
 export const launcherUpdateRequired = () =>
   call<LauncherUpdate | null>("launcher_update_required");
 
+/// Tanya endpoint rilis apakah ada versi launcher yang lebih baru.
+export const launcherUpdateCheck = () => call<LauncherUpdate | null>("launcher_update_check");
+
+/// Unduh, verifikasi, pasang, lalu jalankan ulang. Tidak pernah kembali kalau
+/// berhasil: prosesnya diganti.
+export const launcherUpdateInstall = () => call<void>("launcher_update_install");
+
 // ── Event ────────────────────────────────────────────────────────────────
 export const onJobEvent = (handler: (event: JobEvent) => void): Promise<UnlistenFn> =>
   listen<JobEvent>("job", (e) => handler(e.payload));

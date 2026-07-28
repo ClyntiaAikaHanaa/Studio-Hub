@@ -21,6 +21,7 @@
   import InstallDialog from "./components/InstallDialog.svelte";
   import UninstallDialog from "./components/UninstallDialog.svelte";
   import NavIcon from "./components/NavIcon.svelte";
+  import LauncherUpdateBanner from "./components/LauncherUpdateBanner.svelte";
   import appLogo from "./assets/logo.png";
 
   let ready = $state(false);
@@ -138,6 +139,10 @@
   </nav>
 
   <main>
+    <!-- Di atas banner katalog: update launcher lebih mendesak, dan kalau
+         katalog menuntutnya, banner ini yang menjelaskan kenapa. -->
+    <LauncherUpdateBanner />
+
     {#if staleMessage}
       <div class="notice warn stale-banner" role="status">
         {staleMessage}

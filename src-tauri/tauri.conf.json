@@ -35,6 +35,7 @@
   "bundle": {
     "active": true,
     "targets": ["msi", "nsis"],
+    "createUpdaterArtifacts": true,
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
@@ -63,7 +64,7 @@
     "updater": {
       "active": true,
       "endpoints": [
-        "https://ClyntiaAikaHanaa.github.io/plugin-catalog/launcher/latest.json"
+        "https://github.com/ClyntiaAikaHanaa/Studio-Hub/releases/latest/download/latest.json"
       ],
       "dialog": false,
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDJGM0Q3NEU2RkExQURBMzYKUldRMjJocjY1blE5TDhDeXVDMzNLZWNYTmY1U3pGZmd3clpObmFldm1LS1c2eEdGWE92dXhqWjIK",

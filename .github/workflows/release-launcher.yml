@@ -32,12 +32,10 @@ jobs:
 
       - run: cargo test --workspace
 
-      # `hub-helper.exe` harus ada di samping StudioHub.exe: itu satu-satunya
-      # lokasi yang dicari `default_helper_path()`, dan jalur pencarian yang
-      # tetap adalah bagian dari mitigasi T6.
-      - name: Build helper
-        run: cargo build --release --target x86_64-pc-windows-msvc -p hub-helper
-
+      # `hub-helper.exe` dibangun dan dipentaskan sebagai sidecar oleh
+      # `scripts/build-sidecar.mjs`, yang dipanggil `beforeBuildCommand`. Tanpa
+      # itu installer hanya berisi StudioHub.exe dan instalasi all-users gagal
+      # saat runtime.
       - name: Build & sign
         env:
           # Ed25519 untuk updater. Tauri mewajibkan verifikasi signature dan
@@ -46,24 +44,19 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_UPDATER_KEY_PASSWORD }}
         run: npm run tauri build -- --target x86_64-pc-windows-msvc --bundles msi,nsis
 
-      # Authenticode. Untuk v1 ini boleh dijalankan manual (PRD §16.3 jalur 3);
-      # langkah ini menjadi otomatis begitu cloud signing tersedia.
-      # Timestamp RFC 3161 wajib: tanpanya, tanda tangan berhenti valid saat
-      # sertifikat kedaluwarsa, termasuk pada binary lama yang sudah beredar.
-      - name: Sign binaries
-        if: ${{ env.SIGNING_AVAILABLE == 'true' }}
-        env:
-          SIGNING_AVAILABLE: ${{ secrets.CERT_THUMBPRINT != '' }}
-          CERT_THUMBPRINT: ${{ secrets.CERT_THUMBPRINT }}
-        run: |
-          $targets = @(
-            "target\x86_64-pc-windows-msvc\release\StudioHub.exe",
-            "target\x86_64-pc-windows-msvc\release\hub-helper.exe"
-          )
-          foreach ($t in $targets) {
-            signtool sign /sha1 $env:CERT_THUMBPRINT /fd SHA256 `
-              /tr http://timestamp.digicert.com /td SHA256 $t
-          }
+      # TODO(code signing): JANGAN menandatangani di sini.
+      #
+      # Langkah ini dulu berjalan setelah `tauri build` dan menandatangani
+      # `target\...\release\*.exe`. Itu tidak ada gunanya: installer sudah
+      # terbentuk dan sudah menelan salinan binernya, jadi yang ditandatangani
+      # adalah berkas yang tidak pernah dikirim ke siapa pun. Ia juga meleset
+      # dari sidecar, yang dibundel dari `src-tauri\binaries\`.
+      #
+      # Cara yang benar adalah `bundle.windows.signCommand` di tauri.conf.json,
+      # yang dipanggil Tauri untuk setiap biner SEBELUM dibundel, plus timestamp
+      # RFC 3161 (tanpanya tanda tangan berhenti valid saat sertifikat
+      # kedaluwarsa, termasuk pada binary lama yang sudah beredar).
+      # Diaktifkan bersamaan dengan pembelian sertifikat (PRD §16.3 jalur 3).
 
       - name: Generate updater manifest
         run: node scripts/make-latest-json.mjs

@@ -57,6 +57,8 @@ fn main() {
             commands::telemetry_reset_id,
             commands::version_skip,
             commands::launcher_update_required,
+            commands::launcher_update_check,
+            commands::launcher_update_install,
             commands::diagnostics_summary,
         ])
         .run(tauri::generate_context!())

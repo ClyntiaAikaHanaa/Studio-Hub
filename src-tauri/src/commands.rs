@@ -649,11 +649,40 @@ pub async fn version_skip(
 
 // ── Self-update ──────────────────────────────────────────────────────────
 
+/// Versi minimum yang dituntut katalog, kalau launcher saat ini belum memenuhinya.
+///
+/// `None` berarti launcher sudah cukup baru. `Some(v)` berarti ada build di
+/// katalog yang menolak dipasang sampai launcher mencapai `v` (FR-7.3).
+async fn catalog_required_version(state: &AppState) -> Option<String> {
+    let catalog = state.catalog.lock().await.clone()?;
+    let current = hub_core::LAUNCHER_VERSION;
+
+    let mut required: Option<String> = None;
+    for plugin in &catalog.plugins {
+        let Some(min) = &plugin.latest.min_launcher_version else {
+            continue;
+        };
+        if hub_core::version::satisfies_minimum(current, min) {
+            continue;
+        }
+        // Ambil tuntutan tertinggi, bukan yang pertama ditemui: memperbarui ke
+        // versi terendah yang menuntut hanya akan memblokir lagi di plugin
+        // berikutnya.
+        let higher = match &required {
+            Some(existing) => !hub_core::version::satisfies_minimum(existing, min),
+            None => true,
+        };
+        if higher {
+            required = Some(min.clone());
+        }
+    }
+    required
+}
+
 /// Periksa apakah katalog menuntut launcher yang lebih baru (FR-7.3).
 ///
-/// Unduhan dan pemasangan update launcher sendiri dilakukan
-/// `tauri-plugin-updater` di sisi frontend, yang memverifikasi signature Ed25519
-/// dan tidak menyediakan cara menonaktifkannya.
+/// Ini menjawab "apakah instalasi plugin diblokir?", bukan "apakah ada rilis
+/// baru?". Untuk yang kedua, lihat `launcher_update_check`.
 #[tauri::command]
 pub async fn launcher_update_required(
     state: State<'_, AppState>,
@@ -661,24 +690,8 @@ pub async fn launcher_update_required(
     let Some(catalog) = state.catalog.lock().await.clone() else {
         return Ok(None);
     };
-
     let current = hub_core::LAUNCHER_VERSION;
-
-    // Versi minimum yang dituntut salah satu build di katalog.
-    let mut required_by_plugin: Option<String> = None;
-    for plugin in &catalog.plugins {
-        if let Some(min) = &plugin.latest.min_launcher_version {
-            if !hub_core::version::satisfies_minimum(current, min) {
-                let higher = match &required_by_plugin {
-                    Some(existing) => !hub_core::version::satisfies_minimum(existing, min),
-                    None => true,
-                };
-                if higher {
-                    required_by_plugin = Some(min.clone());
-                }
-            }
-        }
-    }
+    let required = catalog_required_version(&state).await;
 
     let latest = catalog.launcher.latest_version.clone();
     let has_newer = latest
@@ -686,19 +699,111 @@ pub async fn launcher_update_required(
         .map(|v| !hub_core::version::satisfies_minimum(current, v))
         .unwrap_or(false);
 
-    if required_by_plugin.is_none() && !has_newer {
+    if required.is_none() && !has_newer {
         return Ok(None);
     }
 
     Ok(Some(crate::views::LauncherUpdate {
         current_version: current.to_string(),
-        available_version: latest.unwrap_or_else(|| {
-            required_by_plugin.clone().unwrap_or_else(|| current.to_string())
-        }),
+        available_version: latest
+            .unwrap_or_else(|| required.clone().unwrap_or_else(|| current.to_string())),
         notes: String::new(),
         security: false,
-        required: required_by_plugin.is_some(),
+        required: required.is_some(),
     }))
+}
+
+/// Tanya endpoint updater apakah ada rilis launcher yang lebih baru.
+///
+/// Pemeriksaan, unduhan, dan verifikasi dijalankan `tauri-plugin-updater` di
+/// sisi Rust, bukan di frontend. Frontend tidak punya kapabilitas jaringan
+/// (ADR-5), dan menaruhnya di backend berarti tidak ada dependensi npm baru
+/// hanya untuk memanggil satu endpoint.
+///
+/// Signature Ed25519 diverifikasi terhadap `pubkey` yang tertanam di binary,
+/// dan plugin tidak menyediakan cara mematikannya. Itulah yang membuat manifest
+/// yang dipalsukan tidak dapat memasang apa pun.
+#[tauri::command]
+pub async fn launcher_update_check(
+    app: AppHandle,
+    state: State<'_, AppState>,
+) -> CmdResult<Option<crate::views::LauncherUpdate>> {
+    use tauri_plugin_updater::UpdaterExt;
+
+    let current = hub_core::LAUNCHER_VERSION.to_string();
+    let required = catalog_required_version(&state).await;
+
+    // Jaringan mati, GitHub down, atau manifest belum terbit bukan kondisi
+    // error yang perlu dilempar ke pengguna: mereka tidak meminta apa pun dan
+    // tidak dapat berbuat apa pun. Dicatat ke log, lalu diperlakukan sebagai
+    // "tidak ada update".
+    let found = match app.updater() {
+        Ok(updater) => match updater.check().await {
+            Ok(found) => found,
+            Err(err) => {
+                tracing::warn!(error = %err, "pemeriksaan update launcher gagal");
+                None
+            }
+        },
+        Err(err) => {
+            tracing::warn!(error = %err, "updater tidak tersedia");
+            None
+        }
+    };
+
+    let Some(update) = found else {
+        // Tidak ada rilis baru. Tuntutan katalog tetap dilaporkan supaya
+        // pengguna tahu kenapa instalasi plugin diblokir, alih-alih menghadapi
+        // tombol yang mati tanpa penjelasan.
+        return Ok(required.map(|min| crate::views::LauncherUpdate {
+            current_version: current,
+            available_version: min,
+            notes: String::new(),
+            security: false,
+            required: true,
+        }));
+    };
+
+    Ok(Some(crate::views::LauncherUpdate {
+        current_version: current,
+        available_version: update.version.clone(),
+        notes: update.body.clone().unwrap_or_default(),
+        security: false,
+        required: required.is_some(),
+    }))
+}
+
+/// Unduh dan pasang update launcher, lalu jalankan ulang aplikasi.
+///
+/// `check()` dipanggil ulang di sini alih-alih menyimpan hasil pemeriksaan
+/// sebelumnya. Satu permintaan HTTP tambahan jauh lebih murah daripada
+/// menyimpan state yang bisa basi: pengguna bisa membiarkan jendela terbuka
+/// berjam-jam sebelum menekan tombolnya.
+#[tauri::command]
+pub async fn launcher_update_install(app: AppHandle) -> CmdResult<()> {
+    use tauri_plugin_updater::UpdaterExt;
+
+    let updater = app
+        .updater()
+        .map_err(|err| HubError::internal(format!("updater tidak tersedia: {err}")))?;
+
+    let Some(update) = updater
+        .check()
+        .await
+        .map_err(|err| HubError::internal(format!("gagal memeriksa update: {err}")))?
+    else {
+        // Rilis sudah ditarik antara pemeriksaan dan klik. Bukan kegagalan.
+        return Ok(());
+    };
+
+    update
+        .download_and_install(|_downloaded, _total| {}, || {})
+        .await
+        .map_err(|err| HubError::internal(format!("gagal memasang update: {err}")))?;
+
+    // Installer sudah berjalan; proses ini harus keluar agar berkasnya dapat
+    // ditimpa. `restart` tidak pernah kembali.
+    app.restart();
 }
 
 // ── Diagnostik ───────────────────────────────────────────────────────────

@@ -20,6 +20,40 @@
   let clearing = $state(false);
   let cleared = $state(false);
 
+  // Pemeriksaan manual. Tanpa ini, mematikan pemeriksaan otomatis di atas akan
+  // membuat pengguna terjebak di versi lama selamanya tanpa jalan keluar.
+  let checking = $state(false);
+  let checkResult = $state<"none" | "upToDate" | "found">("none");
+  let foundVersion = $state("");
+
+  async function checkNow() {
+    checking = true;
+    checkResult = "none";
+    try {
+      const found = await api.launcherUpdateCheck();
+      if (found) {
+        foundVersion = found.availableVersion;
+        checkResult = "found";
+      } else {
+        checkResult = "upToDate";
+      }
+    } catch (e) {
+      if (e instanceof BackendError) error = e.hub;
+    } finally {
+      checking = false;
+    }
+  }
+
+  async function installUpdate() {
+    checking = true;
+    try {
+      await api.launcherUpdateInstall();
+    } catch (e) {
+      if (e instanceof BackendError) error = e.hub;
+      checking = false;
+    }
+  }
+
   onMount(async () => {
     diagnostics = await api.diagnosticsSummary();
   });
@@ -82,6 +116,20 @@
       />
       <span>{$t("settings.checkOnLaunch")}</span>
     </label>
+
+    <div class="check-row">
+      <button onclick={checkNow} disabled={checking}>
+        {checking ? $t("launcherUpdate.installing") : $t("settings.checkNow")}
+      </button>
+      {#if checkResult === "upToDate"}
+        <span class="small muted">{$t("settings.upToDate")}</span>
+      {:else if checkResult === "found"}
+        <span class="small">{$t("launcherUpdate.available", { version: foundVersion })}</span>
+        <button class="primary small" onclick={installUpdate} disabled={checking}>
+          {$t("launcherUpdate.install")}
+        </button>
+      {/if}
+    </div>
   </section>
 
   <section class="card">
@@ -190,5 +238,13 @@
 
   .facts dd {
     margin: 0;
+  }
+
+  .check-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
   }
 </style>

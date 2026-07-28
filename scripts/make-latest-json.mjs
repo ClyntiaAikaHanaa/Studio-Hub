@@ -11,17 +11,27 @@
 import { readFile, readdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 
-const REPO = process.env.GITHUB_REPOSITORY ?? "ClyntiaAikaHanaa/studio-hub";
+const REPO = process.env.GITHUB_REPOSITORY ?? "ClyntiaAikaHanaa/Studio-Hub";
 const TAG = (process.env.GITHUB_REF_NAME ?? "launcher-v1.0.0").trim();
 const VERSION = TAG.replace(/^launcher-v/, "");
 
-const BUNDLE_ROOT = join("target", "x86_64-pc-windows-msvc", "release", "bundle");
+// `tauri build --target <triple>` menaruh bundle di bawah triple-nya, sedangkan
+// `tauri build` biasa menaruhnya di `target/release`. Keduanya dicari supaya
+// skrip ini bekerja di CI maupun saat dijalankan manual di mesin sendiri.
+const BUNDLE_ROOTS = [
+  join("target", "x86_64-pc-windows-msvc", "release", "bundle"),
+  join("target", "release", "bundle"),
+];
 
 // NSIS lebih kecil dan lebih fleksibel; MSI lebih baik untuk deployment
 // terkelola (Open Question Q4). Updater memakai NSIS kalau ada.
-const bundle =
-  (await findBundle(join(BUNDLE_ROOT, "nsis"), ".exe")) ??
-  (await findBundle(join(BUNDLE_ROOT, "msi"), ".msi"));
+let bundle = null;
+for (const root of BUNDLE_ROOTS) {
+  bundle =
+    (await findBundle(join(root, "nsis"), ".exe")) ??
+    (await findBundle(join(root, "msi"), ".msi"));
+  if (bundle) break;
+}
 
 if (!bundle) {
   console.error("tidak menemukan bundle NSIS maupun MSI â€” apakah `tauri build` berhasil?");

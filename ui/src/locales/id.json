@@ -135,6 +135,13 @@
   "catalog.stale": "Data mungkin usang — terakhir diperbarui {time}.",
   "catalog.offline": "Sedang offline. Plugin yang sudah terpasang tetap bisa dikelola.",
 
+  "launcherUpdate.available": "Studio Hub {version} sudah tersedia.",
+  "launcherUpdate.required": "Plugin yang kamu inginkan butuh Studio Hub {version} atau lebih baru.",
+  "launcherUpdate.install": "Perbarui dan mulai ulang",
+  "launcherUpdate.installing": "Memperbarui…",
+  "launcherUpdate.later": "Nanti saja",
+  "launcherUpdate.failed": "Update gagal dipasang.",
+
   "warning.elevation": "Instalasi ini akan meminta izin Administrator.",
   "warning.perUserPath": "Sebagian DAW tidak memindai lokasi per-user secara otomatis. Kalau plugin tidak muncul setelah rescan, tambahkan folder ini ke pengaturan DAW kamu: {path}",
   "warning.adopted": "Plugin ini sebelumnya dipasang manual. Studio Hub akan mengambil alih pengelolaannya.",
@@ -146,6 +153,8 @@
   "settings.customPath": "Path khusus",
   "settings.updates": "Update",
   "settings.checkOnLaunch": "Periksa update saat aplikasi dibuka",
+  "settings.checkNow": "Periksa sekarang",
+  "settings.upToDate": "Studio Hub sudah versi terbaru.",
   "settings.betaChannel": "Ikut beta channel",
   "settings.privacy": "Privasi",
   "settings.telemetry": "Kirim data penggunaan anonim",
